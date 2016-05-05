@@ -1,6 +1,9 @@
 import sys
 import re
 import urllib2
+from bs4 import BeautifulSoup
+import httplib
+
 
 # need to build lexers.
 
@@ -14,42 +17,75 @@ rules = [
 
 
 def send_to_mothership():
+    pass
 
 
- #mothership gives crawler mission
+#mothership gives crawler mission
+def get_regex():
+    # Regex
+    return "a"
+    pass
+
 def get_mission():
+    # URLS
+    return "a"
     pass
 
-def do_mission():
+def open_page(url):
+    # open URL
+    page = urllib2.urlopen(url)
+    return page
+
+def send_report(results):
     pass
 
-def send_report(id):
+def do_mission(regex , soup):
+    results = []
+
+    try:
+        for x in regex:
+            results.append(soup.find_all(x))
+
+
+        return results
+    except:
+        return False
     pass
 
-def main(arg , argv):
-    alive = 1
-    id = argv[1]
 
 
-    while alive:
-        get_mission()
+# The input needs a destination
+def main(arg , urls):
 
-        try:
-            do_mission()
+    alive = True
+    while alive or urls != None:
+        regex = get_regex()
+        # urls = get_mission()
+        for x in urls:
+           file =  open_page(x)
+           soupMix =  file.read()
+           soup = BeautifulSoup(soupMix , 'html.parser')
+           try:
+               results = do_mission(regex , soup)
+               if(False!= results ):
+                   alive = False
+                   urls = None
+                   send_report(results)
+                   #        return results
+                   # get another mission from the mothership
+                   # if nothing kill it.
+               else:
+                   alive = False
+           except urllib2.HTTPError, err:
+                if err.code == 404:
+                    print "\n\nError 404: Phases not found!"
+                elif err.code == 403:
+                    print "\n\nError 403: Wrong command!"
+                else:
+                    print "\n\nHouston we have a problem! Error code ", err.code
 
 
-
-
-        except urllib2.HTTPError, err:
-		if err.code == 404:
-			print "\n\nError 404: Phases not found!"
-		elif err.code == 403:
-			print "\n\nError 403: Wrong command!"
-		else:
-			print "\n\nHouston we have a problem! Error code ", err.code
-
-
-        send_report(id)
+            # send_report(id)
 
 
 
@@ -62,4 +98,4 @@ def main(arg , argv):
 
 
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    main(sys.argv[0] , sys.argv[1:])
