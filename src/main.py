@@ -1,13 +1,16 @@
+import base64
 import sys
-import re
 import urllib2
-from bs4 import BeautifulSoup
-import httplib
+import json
 
+from bs4 import BeautifulSoup
 
 # need to build lexers.
 
-sentiments = []
+sentimentURL = urllib2.Request("http://127.0.0.1:8000/data/sentiments/")
+crawlerURL = urllib2.Request("http://127.0.0.1:8000/data/crawlers/")
+#userAndPass = b64encode(b"crawler:swift").decode("ascii")
+#headers = { 'Authorization' : 'Basic %s' %  userAndPass }
 
 rules = [
     # ('bold', re.compile(r'\*\*')),
@@ -16,51 +19,58 @@ rules = [
 
 
 
-def send_to_mothership():
-    pass
-
-
 #mothership gives crawler mission
 def get_regex():
-    # Regex
-    return "a"
+   # base64string = base64.encodestring('%s:%s' % ("sentiment", "swift")).replace('\n', '')
+    #sentimentURL.add_header("Authorization", "Basic %s" % base64string)
+    results = urllib2.urlopen(sentimentURL)
+    data =  results.read()
+    return data
     pass
 
+#get CrawlerMission
 def get_mission():
-    # URLS
-    return "a"
+    base64string = base64.encodestring('%s:%s' % ("crawler", "swift")).replace('\n', '')
+    crawlerURL.add_header("Authorization", "Basic %s" % base64string)
+    results = urllib2.urlopen(crawlerURL)
+    data =  results.read()
+    return data
     pass
 
+#open the URL
 def open_page(url):
     # open URL
     page = urllib2.urlopen(url)
     return page
 
+#Sends results to the MotherShip
 def send_report(results):
-    pass
 
+   pass
+
+#scan the page for the sentiments/Regex.
 def do_mission(regex , soup):
     results = []
 
     try:
         for x in regex:
             results.append(soup.find_all(x))
-
-
-        return results
+        return json.dumps(results)
     except:
         return False
+
+
     pass
 
 
 
 # The input needs a destination
 def main(arg , urls):
-
-    alive = True
-    while alive or urls != None:
+    data = get_mission()
+    #alive = True
+    while urls != None:
         regex = get_regex()
-        # urls = get_mission()
+        #urls = get_mission()
         for x in urls:
            file =  open_page(x)
            soupMix =  file.read()
